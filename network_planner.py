@@ -4,7 +4,8 @@ import matplotlib.pyplot as plt
 class NetworkPlanner:
     """A class to plan and optimize wireless network access point placement."""
 
-    def __init__(self, xy, frequency, pl_exponent, num_ap=1, tx_power=23, resolution_factor=1):
+    def __init__(self, xy: tuple, frequency: float, pl_exponent: float, num_ap: int = 1,
+                 tx_power: float = 23, resolution_factor: int = 1):
         """
         Initialize the network planner.
 
@@ -23,7 +24,7 @@ class NetworkPlanner:
         self.frequency = frequency
         self.pl_exponent = pl_exponent
 
-    def calculate_pathloss(self, distance):
+    def calculate_pathloss(self, distance: float) -> float:
         """
         Calculate path loss for a given distance.
 
@@ -37,7 +38,7 @@ class NetworkPlanner:
         pl = pl0 + 10 * self.pl_exponent * np.log10(distance)
         return pl
 
-    def map_pathloss(self, ap_locs=(), nth=0):
+    def map_pathloss(self, ap_locs: tuple = (), nth: int = 0) -> tuple[tuple[np.ndarray, np.ndarray], np.ndarray]:
         """
         Create a path loss map for given AP locations.
 
@@ -72,8 +73,16 @@ class NetworkPlanner:
         pl_map = pl_sorted[nth, :, :]
         return (x_ap, y_ap), pl_map
 
-    def generate_heatmap(self, ap_locs=(), nth=0):
-        """Generate a heatmap visualization of path loss."""
+    def generate_heatmap(self, ap_locs: tuple = (), nth: int = 0):
+        """Generate a heatmap visualization of path loss.
+
+        Args:
+            ap_locs (tuple): Tuple of (x_coords, y_coords) for AP locations
+            nth (int): Which AP's path loss to return (0=strongest)
+
+        Returns:
+            Plot of the heatmap
+        """
         if ap_locs:
             x_ap, y_ap = ap_locs
             if len(x_ap.shape) != 3:
@@ -93,7 +102,7 @@ class NetworkPlanner:
         fig.colorbar(c, ax=ax)
         return fig, ax
 
-    def create_mask(self):
+    def create_mask(self) -> np.ndarray:
         """Create a mask representing important areas in the facility."""
         ind_x, ind_y = self.resolution_factor * self.x, self.resolution_factor * self.y
         edge_coeff = 0.15
@@ -105,7 +114,7 @@ class NetworkPlanner:
         mask[int((1 - edge_coeff) * ind_x), int(edge_coeff * ind_y):int((1 - edge_coeff) * ind_y)] = 1
         return mask
 
-    def uniform_ap_distribution(self):
+    def uniform_ap_distribution(self) -> tuple[np.ndarray, np.ndarray]:
         """Distribute APs uniformly along important paths."""
         x_ap, y_ap = [], []
         edge_coeff = 0.1
@@ -136,7 +145,7 @@ class NetworkPlanner:
         y_ap = np.tile(y_ap[:, None, None], (1, self.resolution_factor * self.y, self.resolution_factor * self.x))
         return (x_ap, y_ap)
 
-    def lattice_distribution(self):
+    def lattice_distribution(self) -> tuple[np.ndarray, np.ndarray]:
         """Distribute APs in a regular lattice pattern."""
         N_new = int(np.ceil(np.sqrt(self.num_ap))) ** 2
         n_cols = int(np.sqrt(N_new))
@@ -156,7 +165,7 @@ class NetworkPlanner:
         y_ap = np.tile(y_coords[:, None, None], (1, self.resolution_factor * self.y, self.resolution_factor * self.x))
         return (x_ap, y_ap)
 
-    def genetic_optimization(self, threshold=45, init_iter=100, dropout=0.8, nth=0):
+    def genetic_optimization(self, threshold: float = 45, init_iter: int = 100, dropout: float = 0.8, nth: int = 0):
         """
         Optimize AP placement using a genetic algorithm.
 

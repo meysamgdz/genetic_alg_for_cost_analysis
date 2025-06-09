@@ -1,6 +1,6 @@
 import numpy as np
 
-def calculate_noise(band_width=40e6):
+def calculate_noise(band_width: float = 40e6) -> float:
     """
     Calculate thermal noise power in dBm.
 
@@ -18,7 +18,7 @@ def calculate_noise(band_width=40e6):
     return 10 * np.log10(thermal_noise * 1e3)
 
 
-def calculate_threshold(tx_power, noise, localization_acc=0.5):
+def calculate_threshold(tx_power: float, noise: float, localization_acc: float = 0.5) -> float:
     """
     Calculate the path loss threshold for required localization accuracy.
 
